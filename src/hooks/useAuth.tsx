@@ -5,6 +5,7 @@ interface AuthContextType {
   loading: boolean;
   error: string | null;
   signInWithPhone: (phone: string) => Promise<boolean>;
+  verifyOtp: (phone: string, otp: string) => Promise<boolean>;
   signOut: () => Promise<void>;
 }
 
@@ -23,9 +24,30 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setLoading(true);
       setError(null);
-      // Mock authentication
-      setUser({ phone });
+      // Mock authentication - store phone for OTP verification
+      localStorage.setItem('pendingPhone', phone);
       return true;
+    } catch (err: any) {
+      setError(err.message);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const verifyOtp = async (phone: string, otp: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      // Mock OTP verification
+      if (otp === '123456') {
+        setUser({ phone });
+        localStorage.removeItem('pendingPhone');
+        return true;
+      } else {
+        setError('Invalid verification code');
+        return false;
+      }
     } catch (err: any) {
       setError(err.message);
       return false;
@@ -51,6 +73,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     loading,
     error,
     signInWithPhone,
+    verifyOtp,
     signOut,
   };
 
