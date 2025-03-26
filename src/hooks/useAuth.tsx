@@ -1,5 +1,9 @@
 import { useState, createContext, useContext, ReactNode } from 'react';
 
+// Dummy credentials for testing
+const DUMMY_PHONE = '+254700000000';
+const DUMMY_OTP = '123456';
+
 interface AuthContextType {
   user: any;
   loading: boolean;
@@ -24,7 +28,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setLoading(true);
       setError(null);
-      // Mock authentication - store phone for OTP verification
+      
+      if (phone !== DUMMY_PHONE) {
+        setError('Please use the dummy phone number: ' + DUMMY_PHONE);
+        return false;
+      }
+      
+      // Store phone for OTP verification
       localStorage.setItem('pendingPhone', phone);
       return true;
     } catch (err: any) {
@@ -39,13 +49,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setLoading(true);
       setError(null);
-      // Mock OTP verification
-      if (otp === '123456') {
+      
+      if (phone !== DUMMY_PHONE) {
+        setError('Invalid phone number');
+        return false;
+      }
+      
+      if (otp === DUMMY_OTP) {
         setUser({ phone });
         localStorage.removeItem('pendingPhone');
         return true;
       } else {
-        setError('Invalid verification code');
+        setError('Invalid verification code. Use: ' + DUMMY_OTP);
         return false;
       }
     } catch (err: any) {
